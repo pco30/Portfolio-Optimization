@@ -1,5 +1,3 @@
-# Portfolio-Optimization
-
 # Portfolio Optimization with Two-Layer Strategy
 
 ## Overview
