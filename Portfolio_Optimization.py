@@ -1,4 +1,4 @@
-"""Backward-compatible entrypoint for the refactored modular pipeline."""
+"""Backward-compatible entrypoint for the pipeline."""
 
 from src.main import run
 
