@@ -1,55 +1,70 @@
 # Portfolio Optimization with Two-Layer Strategy
 
 ## Overview
-This project implements a **two-layer portfolio optimization strategy** for the S&P 500 using sector-level and stock-level optimizations. It scrapes S&P 500 data, applies sector allocation constraints, selects stocks using equal risk contribution, and backtests the portfolio against the S&P 500.
+This project implements a two-layer portfolio optimization workflow for the S&P 500:
+1) optimize sector allocations under benchmark band constraints, and
+2) optimize stock allocations within each sector using a variance-based risk allocation approach.
+
+The project has been refactored into modules to make the pipeline easier to maintain and extend.
+
+## Project Structure
+- `src/main.py` - Orchestrates the full workflow from data fetch to reporting.
+- `src/config.py` - Centralized constants (dates, benchmark weights, optimization settings).
+- `src/data.py` - Data acquisition and preprocessing (Wikipedia scrape + Yahoo Finance download).
+- `src/optimization.py` - Sector-level and stock-level optimization routines.
+- `src/backtest.py` - Monthly-rebalanced backtest calculations.
+- `src/__init__.py` - Marks `src` as a Python package.
+- `Portfolio_Optimization.py` - Backward-compatible root entrypoint that calls `src.main.run()`.
+- `requirements.txt` - Python dependencies.
 
 ## Features
-- **Sector-Level Optimization**: Limits sector weight deviations to ±5% of the benchmark.
-- **Stock-Level Optimization**: Uses equal risk contribution to allocate stock weights.
-- **Backtesting**: Evaluates the optimized portfolio's performance in 2024 with monthly rebalancing.
+- Sector-level optimization constrained to +/- 5% around benchmark sector weights.
+- Stock-level long-only optimization within each sector.
+- End-to-end backtest for 2024 with monthly rebalancing.
 
 ## Data Sources
-- S&P 500 Constituents: Wikipedia
-- Historical stock data: Yahoo Finance (`yfinance` library)
+- S&P 500 constituents and sectors: Wikipedia.
+- Historical stock prices: Yahoo Finance via `yfinance`.
 
-## Dependencies
-Ensure you have the following Python libraries installed:
+## Installation
+Create and activate a virtual environment (recommended), then install dependencies:
+
 ```bash
-pip install numpy pandas yfinance cvxpy
+pip install -r requirements.txt
 ```
 
 ## Usage
-### 1. Scraping S&P 500 Data
-The script extracts S&P 500 constituents and their sector classifications from Wikipedia.
+Run either entrypoint from the project root:
 
-### 2. Downloading Historical Stock Data
-It fetches adjusted closing prices (2019-2023) using Yahoo Finance.
+```bash
+python -m src.main
+```
 
-### 3. Sector-Level Optimization
-- Uses **convex optimization** to adjust sector weights while ensuring they stay within ±5% of the benchmark.
-- Maximizes expected portfolio return at the sector level.
+or
 
-### 4. Stock-Level Optimization (Equal Risk Contribution)
-- Selects **10 stocks per sector** (randomly chosen for demonstration).
-- Allocates stock weights using an **equal risk contribution approach** based on the covariance matrix.
+```bash
+python Portfolio_Optimization.py
+```
 
-### 5. Backtesting
-- Fetches **2024 stock data**.
-- Performs **monthly rebalancing**.
-- Compares portfolio returns against the **S&P 500 benchmark**.
-
-## Results
-- Computes the **total return** for 2024.
-- Calculates **outperformance vs. the S&P 500**.
+Both commands execute the same pipeline:
+- scrape S&P 500 constituents,
+- download 2019-2023 data for training,
+- optimize sector then stock weights,
+- backtest on 2024 data,
+- print total return and outperformance vs S&P 500.
 
 ## Output Example
-```plaintext
+```text
 Total Portfolio Return in 2024: 28.75%
 Outperformance vs S&P 500: 3.75%
 ```
 
+## Notes
+- Stock selection per sector is randomly sampled for demonstration.
+- Results may differ between runs unless randomness is controlled.
+
 ## Author
-**Princely Oseji**
+Princely Oseji
 
 ## License
 This project is for educational and research purposes only.
