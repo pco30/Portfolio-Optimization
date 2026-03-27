@@ -11,7 +11,6 @@ import yfinance as yf
 import cvxpy as cp
 import time
 
-# ---------------------------- STEP 1: SCRAPE S&P 500 & SECTOR DATA ---------------------------- #
 # Scrape S&P 500 constituents
 url = 'https://en.wikipedia.org/wiki/List_of_S%26P_500_companies'
 sp500_table = pd.read_html(url)[0]
@@ -48,7 +47,7 @@ sector_benchmark_weights = {
     "Materials": 0.020,
 }
 
-# ---------------------------- STEP 2: DOWNLOAD STOCK DATA ---------------------------- #
+# download stock data
 def download_data(tickers, start, end, max_retries=3):
     all_data = {}
     batch_size = 50  # Reduce request load
@@ -76,7 +75,7 @@ data = download_data(tickers, start_date, end_date)
 data.dropna(axis=1, how='any', inplace=True)
 filtered_tickers = data.columns.tolist()
 
-# ---------------------------- STEP 3: SECTOR-LEVEL OPTIMIZATION ---------------------------- #
+# sector-level optimization
 returns = data.pct_change().dropna()
 
 # Optimization Variables
@@ -102,7 +101,7 @@ problem.solve()
 
 sector_optimal_weights = w_sector.value
 
-# ---------------------------- STEP 4: STOCK-LEVEL OPTIMIZATION (EQUAL RISK CONTRIBUTION) ---------------------------- #
+# Stock-level optimization (EQUAL RISK CONTRIBUTION) 
 final_stock_weights = {}
 
 for i, (sector, benchmark_weight) in enumerate(sector_benchmark_weights.items()):
@@ -134,7 +133,7 @@ for i, (sector, benchmark_weight) in enumerate(sector_benchmark_weights.items())
 # Convert to Pandas Series
 portfolio_weights = pd.Series(final_stock_weights)
 
-# ---------------------------- STEP 5: BACKTESTING ---------------------------- #
+# Backtesting 
 test_start = "2024-01-01"
 test_end = "2024-12-31"
 test_data = download_data(list(final_stock_weights.keys()), test_start, test_end)
@@ -151,6 +150,6 @@ total_return = portfolio_cumulative_returns.iloc[-1]
 sp500_benchmark = 0.2502  # Given S&P 500 total return in 2024
 outperformance = total_return - sp500_benchmark
 
-# ---------------------------- STEP 6: PRINT RESULTS ---------------------------- #
+# Results
 print(f"Total Portfolio Return in 2024: {total_return:.2%}")
 print(f"Outperformance vs S&P 500: {outperformance:.2%}")
